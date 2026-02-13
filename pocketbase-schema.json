@@ -1,0 +1,265 @@
+{
+  "collections": [
+    {
+      "name": "logbooks",
+      "type": "base",
+      "schema": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "options": {
+            "min": 2,
+            "max": 100
+          }
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "required": false,
+          "options": {
+            "max": 500
+          }
+        },
+        {
+          "name": "created_by",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "admins",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": null
+          }
+        },
+        {
+          "name": "members",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": null
+          }
+        },
+        {
+          "name": "invite_code",
+          "type": "text",
+          "required": true,
+          "options": {
+            "min": 8,
+            "max": 8,
+            "pattern": "^[A-Z0-9]{8}$"
+          }
+        },
+        {
+          "name": "cover_image",
+          "type": "file",
+          "required": false,
+          "options": {
+            "maxSelect": 1,
+            "maxSize": 5242880,
+            "mimeTypes": ["image/jpeg", "image/png", "image/webp"]
+          }
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_invite_code ON logbooks (invite_code)"],
+      "listRule": "@request.auth.id != '' && (members.id ?= @request.auth.id)",
+      "viewRule": "@request.auth.id != '' && (members.id ?= @request.auth.id)",
+      "createRule": "@request.auth.id != ''",
+      "updateRule": "@request.auth.id != '' && (admins.id ?= @request.auth.id)",
+      "deleteRule": "@request.auth.id != '' && (created_by = @request.auth.id)"
+    },
+    {
+      "name": "memories",
+      "type": "base",
+      "schema": [
+        {
+          "name": "logbook",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "logbooks",
+            "cascadeDelete": true,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "author",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": false,
+          "options": {
+            "max": 100
+          }
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "required": false,
+          "options": {
+            "max": 280
+          }
+        },
+        {
+          "name": "media",
+          "type": "file",
+          "required": true,
+          "options": {
+            "maxSelect": 10,
+            "maxSize": 5242880,
+            "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/heic"]
+          }
+        },
+        {
+          "name": "media_types",
+          "type": "json",
+          "required": false
+        },
+        {
+          "name": "media_order",
+          "type": "json",
+          "required": false
+        },
+        {
+          "name": "event_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "location_name",
+          "type": "text",
+          "required": false,
+          "options": {
+            "max": 200
+          }
+        },
+        {
+          "name": "location_lat",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "location_lng",
+          "type": "number",
+          "required": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_logbook_created ON memories (logbook, created)",
+        "CREATE INDEX idx_event_date ON memories (event_date)"
+      ],
+      "listRule": "@request.auth.id != '' && (logbook.members.id ?= @request.auth.id)",
+      "viewRule": "@request.auth.id != '' && (logbook.members.id ?= @request.auth.id)",
+      "createRule": "@request.auth.id != '' && (logbook.members.id ?= @request.auth.id)",
+      "updateRule": "@request.auth.id != '' && (author = @request.auth.id)",
+      "deleteRule": "@request.auth.id != '' && (author = @request.auth.id)"
+    },
+    {
+      "name": "comments",
+      "type": "base",
+      "schema": [
+        {
+          "name": "memory",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "memories",
+            "cascadeDelete": true,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "author",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "required": true,
+          "options": {
+            "max": 500
+          }
+        }
+      ],
+      "listRule": null,
+      "viewRule": null,
+      "createRule": null,
+      "updateRule": null,
+      "deleteRule": null
+    },
+    {
+      "name": "reactions",
+      "type": "base",
+      "schema": [
+        {
+          "name": "memory",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "memories",
+            "cascadeDelete": true,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "author",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "users",
+            "cascadeDelete": false,
+            "minSelect": 1,
+            "maxSelect": 1
+          }
+        },
+        {
+          "name": "emoji",
+          "type": "text",
+          "required": true,
+          "options": {
+            "max": 10
+          }
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_unique_reaction ON reactions (memory, author)"],
+      "listRule": null,
+      "viewRule": null,
+      "createRule": null,
+      "updateRule": null,
+      "deleteRule": null
+    }
+  ]
+}
