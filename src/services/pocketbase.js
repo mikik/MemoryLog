@@ -205,6 +205,35 @@ class PocketBaseService {
     }
   }
 
+  // Comments
+  async getComments(memoryId) {
+    try {
+      const records = await this.client.collection('comments').getFullList({
+        filter: this.client.filter('memory = {:id}', { id: memoryId }),
+        sort: 'created',
+        expand: 'author',
+      });
+      return records;
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      throw error;
+    }
+  }
+
+  async createComment(memoryId, text) {
+    try {
+      const record = await this.client.collection('comments').create({
+        memory: memoryId,
+        author: this.getCurrentUser().id,
+        text,
+      });
+      return record;
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      throw error;
+    }
+  }
+
   // Utility
   generateInviteCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No confusing chars (0, O, I, 1)

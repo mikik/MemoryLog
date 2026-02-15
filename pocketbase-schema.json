@@ -213,11 +213,11 @@
           }
         }
       ],
-      "listRule": null,
-      "viewRule": null,
-      "createRule": null,
-      "updateRule": null,
-      "deleteRule": null
+      "listRule": "@request.auth.id != ''",
+      "viewRule": "@request.auth.id != ''",
+      "createRule": "@request.auth.id != ''",
+      "updateRule": "@request.auth.id != '' && author = @request.auth.id",
+      "deleteRule": "@request.auth.id != '' && author = @request.auth.id"
     },
     {
       "name": "reactions",
