@@ -71,9 +71,28 @@ export default function LogBooksScreen() {
     }
   };
 
+  const getMemberNames = (logbook) => {
+    const members = logbook.expand?.members;
+    if (!members || members.length === 0) {
+      const count = logbook.members?.length || 0;
+      return `${count} member${count !== 1 ? 's' : ''}`;
+    }
+
+    const adminIds = new Set((logbook.expand?.admins || []).map(a => a.id));
+    const getName = (m) => m.name || m.email?.split('@')[0] || 'Unknown';
+
+    const admins = members.filter(m => adminIds.has(m.id));
+    const others = members.filter(m => !adminIds.has(m.id));
+    const sorted = [...admins, ...others];
+
+    return sorted.map(m => {
+      const name = getName(m);
+      return adminIds.has(m.id) ? `${name} (owner)` : name;
+    }).join(', ');
+  };
+
   const renderLogBook = ({ item }) => {
     const isActive = item.id === currentLogbook?.id;
-    const memberCount = item.members?.length || 0;
 
     return (
       <TouchableOpacity
@@ -97,8 +116,8 @@ export default function LogBooksScreen() {
               {item.description}
             </Text>
           )}
-          <Text style={styles.logbookMeta}>
-            {memberCount} member{memberCount !== 1 ? 's' : ''}
+          <Text style={styles.logbookMeta} numberOfLines={2}>
+            {getMemberNames(item)}
           </Text>
         </View>
 
