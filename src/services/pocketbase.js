@@ -59,6 +59,8 @@ class PocketBaseService {
       return false;
     } catch (error) {
       console.error('Auto-login failed:', error);
+      this.client.authStore.clear();
+      await SecureStore.deleteItemAsync('pocketbase_token');
       return false;
     }
   }
@@ -78,7 +80,9 @@ class PocketBaseService {
   // LogBooks
   async getLogBooks() {
     try {
+      const userId = this.getCurrentUser().id;
       const records = await this.client.collection('logbooks').getFullList({
+        filter: this.client.filter('members.id ?= {:userId}', { userId }),
         sort: '-created',
         expand: 'members,admins',
       });
@@ -116,7 +120,7 @@ class PocketBaseService {
       
       // Find logbook by invite code
       const logbooks = await this.client.collection('logbooks').getFullList({
-        filter: `invite_code = "${inviteCode}"`,
+        filter: this.client.filter('invite_code = {:code}', { code: inviteCode }),
       });
       
       if (logbooks.length === 0) {
@@ -130,6 +134,7 @@ class PocketBaseService {
         const updatedMembers = [...logbook.members, userId];
         await this.client.collection('logbooks').update(logbook.id, {
           members: updatedMembers,
+          invite_code: inviteCode, // Include invite_code so PB update rule allows non-members to join
         });
       }
       
@@ -144,7 +149,7 @@ class PocketBaseService {
   async getMemories(logbookId, page = 1, perPage = 30) {
     try {
       const records = await this.client.collection('memories').getList(page, perPage, {
-        filter: `logbook = "${logbookId}"`,
+        filter: this.client.filter('logbook = {:id}', { id: logbookId }),
         sort: '-created',
         expand: 'author',
       });
