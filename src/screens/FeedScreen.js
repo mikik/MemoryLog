@@ -40,7 +40,7 @@ export default function FeedScreen({ navigation }) {
       const result = await pb.getMemories(currentLogbook.id, pageNum, 30);
       
       if (append) {
-        setMemories([...memories, ...result.items]);
+        setMemories(prev => [...prev, ...result.items]);
       } else {
         setMemories(result.items);
       }

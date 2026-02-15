@@ -61,9 +61,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.appHeader}>
+      <View style={styles.headerBar}>
         <Text style={styles.appTitle}>MemoryLog</Text>
-        <Text style={styles.appSubtitle}>Profile</Text>
+        <Text style={styles.headerSubtitle}>Profile</Text>
       </View>
     <ScrollView style={styles.scrollContent}>
       <View style={styles.header}>
@@ -159,6 +159,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerBar: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  appTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#666',
+    textAlign: 'center',
   },
   scrollContent: {
     flex: 1,

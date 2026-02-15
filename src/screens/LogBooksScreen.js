@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   Alert,
+  Share,
   TextInput,
   Modal,
   Keyboard,
@@ -60,6 +61,16 @@ export default function LogBooksScreen() {
     }
   };
 
+  const handleShareInvite = async (logbook) => {
+    try {
+      await Share.share({
+        message: `Join my LogBook "${logbook.title}" on MemoryLog! Use invite code: ${logbook.invite_code}`,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
   const renderLogBook = ({ item }) => {
     const isActive = item.id === currentLogbook?.id;
     const memberCount = item.members?.length || 0;
@@ -76,7 +87,7 @@ export default function LogBooksScreen() {
             color={isActive ? '#007AFF' : '#666'}
           />
         </View>
-        
+
         <View style={styles.logbookInfo}>
           <Text style={[styles.logbookTitle, isActive && styles.logbookTitleActive]}>
             {item.title}
@@ -91,8 +102,16 @@ export default function LogBooksScreen() {
           </Text>
         </View>
 
+        <TouchableOpacity
+          style={styles.shareButton}
+          onPress={() => handleShareInvite(item)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="share-outline" size={20} color="#666" />
+        </TouchableOpacity>
+
         {isActive && (
-          <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+          <Ionicons name="checkmark-circle" size={24} color="#007AFF" style={{ marginLeft: 8 }} />
         )}
       </TouchableOpacity>
     );
@@ -121,23 +140,13 @@ export default function LogBooksScreen() {
         }
       />
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => setShowCreateModal(true)}
-        >
-          <Ionicons name="add-circle-outline" size={24} color="#007AFF" />
-          <Text style={styles.actionButtonText}>Create LogBook</Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.fabJoin} onPress={() => setShowJoinModal(true)}>
+        <Ionicons name="enter-outline" size={28} color="#fff" />
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => setShowJoinModal(true)}
-        >
-          <Ionicons name="enter-outline" size={24} color="#007AFF" />
-          <Text style={styles.actionButtonText}>Join with Code</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.fab} onPress={() => setShowCreateModal(true)}>
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
 
       {/* Create LogBook Modal */}
       <Modal
@@ -309,6 +318,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
   },
+  shareButton: {
+    padding: 6,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -328,30 +340,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
   },
-  actions: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    backgroundColor: '#fff',
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+  fabJoin: {
+    position: 'absolute',
+    right: 20,
+    bottom: 150,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#34C759',
     justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#f0f8ff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#007AFF',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
-  actionButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 80,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   modalOverlay: {
     flex: 1,
