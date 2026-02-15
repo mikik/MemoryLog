@@ -76,10 +76,10 @@
         }
       ],
       "indexes": ["CREATE UNIQUE INDEX idx_invite_code ON logbooks (invite_code)"],
-      "listRule": "@request.auth.id != '' && (members.id ?= @request.auth.id)",
-      "viewRule": "@request.auth.id != '' && (members.id ?= @request.auth.id)",
+      "listRule": "@request.auth.id != ''",
+      "viewRule": "@request.auth.id != ''",
       "createRule": "@request.auth.id != ''",
-      "updateRule": "@request.auth.id != '' && (admins.id ?= @request.auth.id)",
+      "updateRule": "@request.auth.id != '' && (admins.id ?= @request.auth.id || members.id ?= @request.auth.id || invite_code = @request.data.invite_code)",
       "deleteRule": "@request.auth.id != '' && (created_by = @request.auth.id)"
     },
     {
