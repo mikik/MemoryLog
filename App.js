@@ -1,3 +1,4 @@
+import 'react-native-url-polyfill/auto';
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,7 +9,6 @@ export default function App() {
   const initialize = useAuthStore((state) => state.initialize);
 
   useEffect(() => {
-    // Try to auto-login when app starts
     initialize();
   }, []);
 

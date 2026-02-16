@@ -4,12 +4,17 @@ import * as SecureStore from 'expo-secure-store';
 // IMPORTANT: Replace with your computer's local IP address
 // Find it by running: ipconfig (Windows) or ifconfig (Mac/Linux)
 // Example: 'http://192.168.1.100:8090'
-const PB_URL = 'http://192.168.1.110:8090'; // <-- CHANGE THIS!
+const PB_URL = 'https://hippocampal-louie-unevaporated.ngrok-free.dev';
 
 class PocketBaseService {
   constructor() {
     this.client = new PocketBase(PB_URL);
     this.client.autoCancellation(false);
+    this.client.beforeSend = function (url, options) {
+      options.headers = options.headers || {};
+      options.headers['ngrok-skip-browser-warning'] = 'true';
+      return { url, options };
+    };
   }
 
   // Authentication

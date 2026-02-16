@@ -11,16 +11,21 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourfamily.memorylog"
+      "bundleIdentifier": "com.yourfamily.memorylog",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#007AFF"
       },
       "package": "com.yourfamily.memorylog",
+      "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -29,7 +34,21 @@
         {
           "photosPermission": "The app needs access to your photos to share family memories."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fe66f7d5-3dc5-4965-a67c-6bbc262e74ab"
+      }
+    },
+    "owner": "miki2026"
   }
 }

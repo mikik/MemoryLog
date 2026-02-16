@@ -13,14 +13,40 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useAuthStore from '../stores/authStore';
 
+const PB_URL = 'https://hippocampal-louie-unevaporated.ngrok-free.dev';
+
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [serverStatus, setServerStatus] = useState(null); // 'checking' | 'online' | 'offline'
 
   const { login, signup } = useAuthStore();
+
+  const testConnection = async () => {
+    setServerStatus('checking');
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const response = await fetch(`${PB_URL}/api/health`, {
+        headers: { 'ngrok-skip-browser-warning': 'true' },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (response.ok) {
+        setServerStatus('online');
+      } else {
+        const text = await response.text();
+        setServerStatus('offline');
+        Alert.alert('Server Error', `Status ${response.status}: ${text.substring(0, 200)}`);
+      }
+    } catch (error) {
+      setServerStatus('offline');
+      Alert.alert('Connection Failed', `Could not reach server:\n${error.message}\n\nURL: ${PB_URL}`);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -41,10 +67,10 @@ export default function AuthScreen() {
         : await signup(email, password, name);
 
       if (!result.success) {
-        Alert.alert('Error', result.error || 'Something went wrong');
+        Alert.alert('Login Failed', result.error || 'Something went wrong. Check your connection.');
       }
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Connection Error', `${error.message}\n\nMake sure you have internet access and the server is reachable.`);
     } finally {
       setLoading(false);
     }
@@ -61,6 +87,17 @@ export default function AuthScreen() {
         <Text style={styles.subtitle}>
           {isLogin ? 'Welcome back' : 'Create your account'}
         </Text>
+
+        <TouchableOpacity onPress={testConnection} style={styles.statusBar}>
+          {serverStatus === 'checking' ? (
+            <ActivityIndicator size="small" color="#007AFF" />
+          ) : (
+            <View style={[styles.statusDot, { backgroundColor: serverStatus === 'online' ? '#34C759' : serverStatus === 'offline' ? '#FF3B30' : '#999' }]} />
+          )}
+          <Text style={styles.statusText}>
+            {serverStatus === 'checking' ? 'Testing connection...' : serverStatus === 'online' ? 'Server online' : serverStatus === 'offline' ? 'Server offline — tap to retry' : 'Tap to test server connection'}
+          </Text>
+        </TouchableOpacity>
 
         {!isLogin && (
           <TextInput
@@ -178,5 +215,25 @@ const styles = StyleSheet.create({
   switchText: {
     color: '#007AFF',
     fontSize: 14,
+  },
+  statusBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 8,
+  },
+  statusText: {
+    fontSize: 13,
+    color: '#555',
   },
 });
