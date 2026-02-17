@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,41 +27,16 @@ export default function ProfileScreen() {
     ]);
   };
 
-  const handleShareInvite = () => {
-    if (!currentLogbook) {
-      Alert.alert('Error', 'No LogBook selected');
-      return;
-    }
-
-    const inviteCode = currentLogbook.invite_code;
-    const message = `Join our Family Memory Log!\n\nLogBook: ${currentLogbook.title}\nInvite Code: ${inviteCode}\n\nDownload the app and enter this code to join.`;
-
-    Share.share({
-      message,
-    });
-  };
-
-  const handleShowInviteCode = () => {
-    if (!currentLogbook) {
-      Alert.alert('Error', 'No LogBook selected');
-      return;
-    }
-
-    Alert.alert(
-      'Invite Code',
-      `Share this code with family members to invite them:\n\n${currentLogbook.invite_code}`,
-      [
-        { text: 'Copy', onPress: () => {/* Would need Clipboard API */} },
-        { text: 'Share', onPress: handleShareInvite },
-        { text: 'Close' },
-      ]
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerBar}>
-        <Text style={styles.appTitle}>MemoryLog</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.appTitle}>MemoryLog</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutHeaderButton}>
+            <Ionicons name="log-out-outline" size={20} color="#ff3b30" />
+            <Text style={styles.logoutHeaderText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.headerSubtitle}>Profile</Text>
       </View>
     <ScrollView style={styles.scrollContent}>
@@ -95,13 +69,6 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            <TouchableOpacity
-              style={styles.cardButton}
-              onPress={handleShowInviteCode}
-            >
-              <Ionicons name="share-outline" size={20} color="#007AFF" />
-              <Text style={styles.cardButtonText}>Share Invite Code</Text>
-            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -141,10 +108,6 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Log Out</Text>
-      </TouchableOpacity>
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Made with ❤️ for families
@@ -168,11 +131,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   appTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#007AFF',
     marginBottom: 4,
+  },
+  logoutHeaderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  logoutHeaderText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#ff3b30',
+    marginLeft: 4,
   },
   headerSubtitle: {
     fontSize: 15,
@@ -249,19 +229,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#333',
   },
-  cardButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    marginTop: 8,
-  },
-  cardButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginLeft: 8,
-  },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -292,20 +259,6 @@ const styles = StyleSheet.create({
   infoTextSmall: {
     fontSize: 14,
     color: '#666',
-  },
-  logoutButton: {
-    backgroundColor: '#fff',
-    padding: 16,
-    margin: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ff3b30',
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ff3b30',
   },
   footer: {
     padding: 32,

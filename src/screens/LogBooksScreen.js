@@ -160,11 +160,11 @@ export default function LogBooksScreen() {
       />
 
       <TouchableOpacity style={styles.fabJoin} onPress={() => setShowJoinModal(true)}>
-        <Ionicons name="enter-outline" size={28} color="#fff" />
+        <Ionicons name="enter-outline" size={22} color="#fff" />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.fab} onPress={() => setShowCreateModal(true)}>
-        <Ionicons name="add" size={32} color="#fff" />
+        <Ionicons name="add" size={26} color="#fff" />
       </TouchableOpacity>
 
       {/* Create LogBook Modal */}
@@ -182,6 +182,7 @@ export default function LogBooksScreen() {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Create New LogBook</Text>
 
+              <Text style={styles.fieldLabel}>Title</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Title (e.g., The Smith Family)"
@@ -190,6 +191,7 @@ export default function LogBooksScreen() {
                 maxLength={100}
               />
 
+              <Text style={styles.fieldLabel}>Description</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Description (optional)"
@@ -235,6 +237,7 @@ export default function LogBooksScreen() {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Join LogBook</Text>
 
+              <Text style={styles.fieldLabel}>Invite Code</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Enter invite code"
@@ -245,7 +248,7 @@ export default function LogBooksScreen() {
               />
 
               <Text style={styles.hint}>
-                Ask a family member for the 8-character invite code
+                Enter 8 character code shared with you
               </Text>
 
               <View style={styles.modalActions}>
@@ -361,11 +364,11 @@ const styles = StyleSheet.create({
   },
   fabJoin: {
     position: 'absolute',
-    right: 20,
-    bottom: 150,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    left: 76,
+    bottom: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#34C759',
     justifyContent: 'center',
     alignItems: 'center',
@@ -377,11 +380,11 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 80,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    left: 20,
+    bottom: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
@@ -410,6 +413,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 6,
   },
   input: {
     backgroundColor: '#f5f5f5',

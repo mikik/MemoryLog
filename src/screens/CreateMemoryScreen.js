@@ -148,6 +148,7 @@ export default function CreateMemoryScreen({ navigation }) {
         )}
 
         {/* Title */}
+        <Text style={styles.fieldLabel}>Title</Text>
         <TextInput
           style={styles.titleInput}
           placeholder="Title (optional)"
@@ -157,6 +158,7 @@ export default function CreateMemoryScreen({ navigation }) {
         />
 
         {/* Description */}
+        <Text style={styles.fieldLabel}>Description</Text>
         <TextInput
           style={styles.descriptionInput}
           placeholder="What's this memory about?"
@@ -250,6 +252,12 @@ const styles = StyleSheet.create({
     right: -8,
     backgroundColor: '#fff',
     borderRadius: 12,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 6,
   },
   titleInput: {
     backgroundColor: '#fff',

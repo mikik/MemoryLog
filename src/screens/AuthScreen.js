@@ -22,6 +22,7 @@ export default function AuthScreen() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [serverStatus, setServerStatus] = useState(null); // 'checking' | 'online' | 'offline'
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const { login, signup } = useAuthStore();
 
@@ -49,16 +50,26 @@ export default function AuthScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    const errors = {};
+
+    if (!email.trim()) {
+      errors.email = 'Email is required';
+    }
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (!isLogin && password.length < 8) {
+      errors.password = 'At least 8 characters';
+    }
+    if (!isLogin && !name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
-    if (!isLogin && !name) {
-      Alert.alert('Error', 'Please enter your name');
-      return;
-    }
-
+    setFieldErrors({});
     setLoading(true);
 
     try {
@@ -67,7 +78,15 @@ export default function AuthScreen() {
         : await signup(email, password, name);
 
       if (!result.success) {
-        Alert.alert('Login Failed', result.error || 'Something went wrong. Check your connection.');
+        const errMsg = result.error || '';
+        // Try to map server errors to specific fields
+        if (errMsg.toLowerCase().includes('email')) {
+          setFieldErrors({ email: errMsg });
+        } else if (errMsg.toLowerCase().includes('password')) {
+          setFieldErrors({ password: errMsg });
+        } else {
+          Alert.alert('Error', errMsg || 'Something went wrong. Check your connection.');
+        }
       }
     } catch (error) {
       Alert.alert('Connection Error', `${error.message}\n\nMake sure you have internet access and the server is reachable.`);
@@ -100,33 +119,53 @@ export default function AuthScreen() {
         </TouchableOpacity>
 
         {!isLogin && (
-          <TextInput
-            style={styles.input}
-            placeholder="Your Name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, fieldErrors.name && styles.fieldLabelError]}>Name</Text>
+            <TextInput
+              style={[styles.input, fieldErrors.name && styles.inputError]}
+              placeholder="Your Name"
+              value={name}
+              onChangeText={(v) => { setName(v); setFieldErrors((e) => ({ ...e, name: undefined })); }}
+              autoCapitalize="words"
+            />
+            {fieldErrors.name && <Text style={styles.fieldErrorText}>{fieldErrors.name}</Text>}
+          </View>
         )}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+        <View style={styles.fieldGroup}>
+          <Text style={[styles.fieldLabel, fieldErrors.email && styles.fieldLabelError]}>Email</Text>
+          <TextInput
+            style={[styles.input, fieldErrors.email && styles.inputError]}
+            placeholder="Email"
+            value={email}
+            onChangeText={(v) => { setEmail(v); setFieldErrors((e) => ({ ...e, email: undefined })); }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {fieldErrors.email && <Text style={styles.fieldErrorText}>{fieldErrors.email}</Text>}
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-        />
+        <View style={styles.fieldGroup}>
+          <Text style={[styles.fieldLabel, fieldErrors.password && styles.fieldLabelError]}>Password</Text>
+          <TextInput
+            style={[styles.input, fieldErrors.password && styles.inputError]}
+            placeholder="Password"
+            value={password}
+            onChangeText={(v) => { setPassword(v); setFieldErrors((e) => ({ ...e, password: undefined })); }}
+            secureTextEntry
+            autoCapitalize="none"
+          />
+          {fieldErrors.password ? (
+            <Text style={styles.fieldErrorText}>{fieldErrors.password}</Text>
+          ) : (
+            !isLogin && (
+              <Text style={[styles.fieldHint, password.length > 0 && password.length < 8 && styles.fieldHintError]}>
+                At least 8 characters
+              </Text>
+            )
+          )}
+        </View>
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -144,7 +183,7 @@ export default function AuthScreen() {
 
         <TouchableOpacity
           style={styles.switchButton}
-          onPress={() => setIsLogin(!isLogin)}
+          onPress={() => { setIsLogin(!isLogin); setFieldErrors({}); }}
         >
           <Text style={styles.switchText}>
             {isLogin
@@ -184,14 +223,41 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     color: '#666',
   },
+  fieldGroup: {
+    marginBottom: 12,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 6,
+  },
+  fieldHint: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
+  },
+  fieldLabelError: {
+    color: '#ff3b30',
+  },
+  fieldErrorText: {
+    fontSize: 12,
+    color: '#ff3b30',
+    marginTop: 4,
+  },
+  fieldHintError: {
+    color: '#ff3b30',
+  },
   input: {
     backgroundColor: '#fff',
     padding: 16,
     borderRadius: 8,
-    marginBottom: 12,
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  inputError: {
+    borderColor: '#ff3b30',
   },
   button: {
     backgroundColor: '#007AFF',

@@ -188,6 +188,30 @@ export default function MemoryCard({ memory, onRefresh }) {
         </Text>
       )}
 
+      {/* Comment input — below title so keyboard doesn't hide it */}
+      {showCommentInput && (
+        <View style={styles.commentInputRow}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment..."
+            value={commentText}
+            onChangeText={setCommentText}
+            maxLength={500}
+            autoFocus
+          />
+          <TouchableOpacity
+            onPress={handleSubmitComment}
+            disabled={!commentText.trim() || submitting}
+          >
+            <Ionicons
+              name="send"
+              size={20}
+              color={commentText.trim() && !submitting ? '#007AFF' : '#ccc'}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Images */}
       {renderImage()}
 
@@ -229,29 +253,6 @@ export default function MemoryCard({ memory, onRefresh }) {
         </View>
       )}
 
-      {/* Comment input — toggled by header icon */}
-      {showCommentInput && (
-        <View style={styles.commentInputRow}>
-          <TextInput
-            style={styles.commentInput}
-            placeholder="Add a comment..."
-            value={commentText}
-            onChangeText={setCommentText}
-            maxLength={500}
-            autoFocus={false}
-          />
-          <TouchableOpacity
-            onPress={handleSubmitComment}
-            disabled={!commentText.trim() || submitting}
-          >
-            <Ionicons
-              name="send"
-              size={20}
-              color={commentText.trim() && !submitting ? '#007AFF' : '#ccc'}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }

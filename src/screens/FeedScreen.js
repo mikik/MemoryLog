@@ -152,7 +152,7 @@ export default function FeedScreen({ navigation }) {
       />
 
       <TouchableOpacity style={styles.fab} onPress={handleCreatePress}>
-        <Ionicons name="add" size={32} color="#fff" />
+        <Ionicons name="add" size={26} color="#fff" />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -231,11 +231,11 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    left: 20,
+    bottom: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
