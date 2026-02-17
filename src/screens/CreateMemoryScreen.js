@@ -71,6 +71,7 @@ export default function CreateMemoryScreen({ navigation }) {
           eventDate: metadata.eventDate || new Date().toISOString(),
           locationLat: metadata.locationLat,
           locationLng: metadata.locationLng,
+          locationName: metadata.locationName,
         },
         compressed
       );

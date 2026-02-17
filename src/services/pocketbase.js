@@ -177,10 +177,10 @@ class PocketBaseService {
       if (data.locationName) {
         formData.append('location_name', data.locationName);
       }
-      if (data.locationLat) {
+      if (data.locationLat != null) {
         formData.append('location_lat', data.locationLat);
       }
-      if (data.locationLng) {
+      if (data.locationLng != null) {
         formData.append('location_lng', data.locationLng);
       }
 

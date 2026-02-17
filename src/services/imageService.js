@@ -1,5 +1,6 @@
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 
 class ImageService {
   // Request permissions
@@ -149,14 +150,57 @@ class ImageService {
     return coordinate; // Already decimal
   }
 
+  // Get device's current location as fallback when EXIF GPS is missing
+  async getCurrentLocation() {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Location permission not granted');
+        return null;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      return {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+    } catch (error) {
+      console.log('Could not get device location:', error.message);
+      return null;
+    }
+  }
+
+  // Reverse geocode lat/lng to a human-readable place name
+  async reverseGeocode(lat, lng) {
+    try {
+      const results = await Location.reverseGeocodeAsync({
+        latitude: lat,
+        longitude: lng,
+      });
+
+      if (results && results.length > 0) {
+        const place = results[0];
+        const parts = [place.city, place.region, place.country].filter(Boolean);
+        return parts.join(', ') || null;
+      }
+      return null;
+    } catch (error) {
+      console.log('Reverse geocoding failed:', error.message);
+      return null;
+    }
+  }
+
   // Batch compress images
   async compressImages(assets) {
     const compressed = [];
-    
+
     for (const asset of assets) {
       const compressedImage = await this.compressImage(asset.uri);
       const metadata = this.extractMetadata(asset);
-      
+
       compressed.push({
         uri: compressedImage.uri,
         width: compressedImage.width,
@@ -164,7 +208,29 @@ class ImageService {
         ...metadata,
       });
     }
-    
+
+    // Find the first image that has GPS data
+    const imageWithGPS = compressed.find(img => img.locationLat != null);
+
+    let finalLat = imageWithGPS?.locationLat ?? null;
+    let finalLng = imageWithGPS?.locationLng ?? null;
+
+    // If no image has GPS, fall back to device location
+    if (finalLat == null) {
+      const deviceLocation = await this.getCurrentLocation();
+      if (deviceLocation) {
+        finalLat = deviceLocation.latitude;
+        finalLng = deviceLocation.longitude;
+      }
+    }
+
+    // Reverse geocode and attach location to first image's metadata
+    if (compressed.length > 0 && finalLat != null) {
+      compressed[0].locationLat = finalLat;
+      compressed[0].locationLng = finalLng;
+      compressed[0].locationName = await this.reverseGeocode(finalLat, finalLng);
+    }
+
     return compressed;
   }
 }
