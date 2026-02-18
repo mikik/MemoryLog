@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -18,8 +18,27 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useAuthStore from '../stores/authStore';
 
-export default function LogBooksScreen() {
+export default function LogBooksScreen({ navigation }) {
   const { logbooks, currentLogbook, setCurrentLogbook, createLogBook, joinLogBook } = useAuthStore();
+  const lastTapRef = useRef(null);
+
+  const handleLogbookPress = (item) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+
+    if (lastTapRef.current && now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap — select and navigate to Feed
+      lastTapRef.current = null;
+      setCurrentLogbook(item);
+      navigation.navigate('Feed');
+    } else {
+      // First tap — just select
+      lastTapRef.current = now;
+      setCurrentLogbook(item);
+    }
+  };
+
+  const [showActionSheet, setShowActionSheet] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -97,7 +116,7 @@ export default function LogBooksScreen() {
     return (
       <TouchableOpacity
         style={[styles.logbookCard, isActive && styles.logbookCardActive]}
-        onPress={() => setCurrentLogbook(item)}
+        onPress={() => handleLogbookPress(item)}
       >
         <View style={styles.logbookIcon}>
           <Ionicons
@@ -159,13 +178,62 @@ export default function LogBooksScreen() {
         }
       />
 
-      <TouchableOpacity style={styles.fabJoin} onPress={() => setShowJoinModal(true)}>
-        <Ionicons name="enter-outline" size={22} color="#fff" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.fab} onPress={() => setShowCreateModal(true)}>
+      <TouchableOpacity style={styles.fab} onPress={() => setShowActionSheet(true)}>
         <Ionicons name="add" size={26} color="#fff" />
       </TouchableOpacity>
+
+      {/* Action Sheet */}
+      <Modal
+        visible={showActionSheet}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowActionSheet(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowActionSheet(false)}>
+          <View style={styles.actionSheetOverlay}>
+            <View style={styles.actionSheetContent}>
+              <TouchableOpacity
+                style={styles.actionSheetOption}
+                onPress={() => {
+                  setShowActionSheet(false);
+                  setShowCreateModal(true);
+                }}
+              >
+                <Ionicons name="book" size={24} color="#007AFF" />
+                <View style={styles.actionSheetText}>
+                  <Text style={styles.actionSheetTitle}>Create New LogBook</Text>
+                  <Text style={styles.actionSheetSubtitle}>Start a new family memory book</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#ccc" />
+              </TouchableOpacity>
+
+              <View style={styles.actionSheetDivider} />
+
+              <TouchableOpacity
+                style={styles.actionSheetOption}
+                onPress={() => {
+                  setShowActionSheet(false);
+                  setShowJoinModal(true);
+                }}
+              >
+                <Ionicons name="link" size={24} color="#34C759" />
+                <View style={styles.actionSheetText}>
+                  <Text style={styles.actionSheetTitle}>Join with Code</Text>
+                  <Text style={styles.actionSheetSubtitle}>Join an existing logbook</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#ccc" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionSheetCancel}
+                onPress={() => setShowActionSheet(false)}
+              >
+                <Text style={styles.actionSheetCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {/* Create LogBook Modal */}
       <Modal
@@ -193,13 +261,14 @@ export default function LogBooksScreen() {
 
               <Text style={styles.fieldLabel}>Description</Text>
               <TextInput
-                style={[styles.input, styles.textArea]}
+                style={styles.input}
                 placeholder="Description (optional)"
                 value={newDescription}
                 onChangeText={setNewDescription}
                 maxLength={500}
                 multiline
                 numberOfLines={3}
+                textAlignVertical="top"
               />
 
               <View style={styles.modalActions}>
@@ -362,22 +431,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
   },
-  fabJoin: {
-    position: 'absolute',
-    left: 76,
-    bottom: 12,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#34C759',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
   fab: {
     position: 'absolute',
     left: 20,
@@ -461,5 +514,55 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 16,
     fontWeight: '600',
+  },
+  actionSheetOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  actionSheetContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+  },
+  actionSheetOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+  },
+  actionSheetText: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  actionSheetTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#333',
+  },
+  actionSheetSubtitle: {
+    fontSize: 13,
+    color: '#999',
+    marginTop: 2,
+  },
+  actionSheetDivider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginHorizontal: 8,
+  },
+  actionSheetCancel: {
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+  },
+  actionSheetCancelText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#666',
   },
 });
