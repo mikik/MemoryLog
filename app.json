@@ -25,7 +25,9 @@
       "permissions": [
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ]
     },
     "plugins": [
@@ -33,6 +35,13 @@
         "expo-image-picker",
         {
           "photosPermission": "The app needs access to your photos to share family memories."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "The app needs your location to tag memories with where they were taken.",
+          "locationWhenInUsePermission": "The app needs your location to tag memories with where they were taken."
         }
       ],
       [
