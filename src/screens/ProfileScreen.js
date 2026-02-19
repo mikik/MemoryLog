@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import useAuthStore from '../stores/authStore';
 
 export default function ProfileScreen() {
@@ -100,7 +101,7 @@ export default function ProfileScreen() {
 
         <View style={styles.infoCard}>
           <Text style={styles.infoText}>
-            Family Memory Log v1.0
+            Family Memory Log v{Constants.expoConfig?.version || '0.1.0'}
           </Text>
           <Text style={styles.infoTextSmall}>
             A private, self-hosted memory sharing app for families
