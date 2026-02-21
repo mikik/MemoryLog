@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useAuthStore from '../stores/authStore';
 
 export default function LogBooksScreen({ navigation }) {
-  const { logbooks, currentLogbook, setCurrentLogbook, createLogBook, joinLogBook } = useAuthStore();
+  const { logbooks, currentLogbook, setCurrentLogbook, createLogBook, joinLogBook, deleteLogBook, user } = useAuthStore();
   const lastTapRef = useRef(null);
 
   const handleLogbookPress = (item) => {
@@ -90,6 +90,26 @@ export default function LogBooksScreen({ navigation }) {
     }
   };
 
+  const handleDeleteLogBook = (logbook) => {
+    Alert.alert(
+      'Delete LogBook',
+      `Are you sure you want to delete "${logbook.title}"?\n\nThis logbook and all its memories, comments, and reactions will be permanently deleted. This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await deleteLogBook(logbook.id);
+            if (!result.success) {
+              Alert.alert('Error', result.error || 'Failed to delete logbook');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getMemberNames = (logbook) => {
     const members = logbook.expand?.members;
     if (!members || members.length === 0) {
@@ -112,6 +132,7 @@ export default function LogBooksScreen({ navigation }) {
 
   const renderLogBook = ({ item }) => {
     const isActive = item.id === currentLogbook?.id;
+    const isCreator = item.created_by === user?.id;
 
     return (
       <TouchableOpacity
@@ -148,8 +169,14 @@ export default function LogBooksScreen({ navigation }) {
           <Ionicons name="share-outline" size={20} color="#666" />
         </TouchableOpacity>
 
-        {isActive && (
-          <Ionicons name="checkmark-circle" size={24} color="#007AFF" style={{ marginLeft: 8 }} />
+        {isCreator && (
+          <TouchableOpacity
+            onPress={() => handleDeleteLogBook(item)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={{ marginLeft: 8 }}
+          >
+            <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+          </TouchableOpacity>
         )}
       </TouchableOpacity>
     );

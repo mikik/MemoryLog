@@ -118,6 +118,22 @@ const useAuthStore = create((set) => ({
       return { success: false, error: error.message };
     }
   },
+
+  deleteLogBook: async (logbookId) => {
+    try {
+      await pb.deleteLogBook(logbookId);
+      const logbooks = await pb.getLogBooks();
+      const currentId = useAuthStore.getState().currentLogbook?.id;
+      if (currentId === logbookId) {
+        set({ logbooks, currentLogbook: logbooks[0] || null });
+      } else {
+        set({ logbooks });
+      }
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
 }));
 
 export default useAuthStore;

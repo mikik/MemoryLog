@@ -150,6 +150,15 @@ class PocketBaseService {
     }
   }
 
+  async deleteLogBook(logbookId) {
+    try {
+      await this.client.collection('logbooks').delete(logbookId);
+    } catch (error) {
+      console.error('Error deleting logbook:', error);
+      throw error;
+    }
+  }
+
   // Memories
   async getMemories(logbookId, page = 1, perPage = 30) {
     try {
