@@ -174,6 +174,26 @@ class PocketBaseService {
     }
   }
 
+  async getMemoriesForAllLogbooks(logbookIds, perLogbook = 5) {
+    const results = await Promise.allSettled(
+      logbookIds.map(id => this.getMemories(id, 1, perLogbook))
+    );
+    return logbookIds
+      .map((id, index) => {
+        const result = results[index];
+        if (result.status === 'fulfilled') {
+          return {
+            logbookId: id,
+            items: result.value.items,
+            totalItems: result.value.totalItems,
+          };
+        }
+        console.warn(`Failed to fetch memories for logbook ${id}:`, result.reason);
+        return null;
+      })
+      .filter(Boolean);
+  }
+
   async createMemory(logbookId, data, images) {
     try {
       const formData = new FormData();
@@ -258,8 +278,12 @@ class PocketBaseService {
     return code;
   }
 
-  getFileUrl(record, filename) {
-    return this.client.files.getUrl(record, filename);
+  getFileUrl(record, filename, { thumb } = {}) {
+    const url = this.client.files.getUrl(record, filename);
+    if (thumb) {
+      return `${url}?thumb=${thumb}`;
+    }
+    return url;
   }
 }
 

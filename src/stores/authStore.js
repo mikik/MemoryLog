@@ -7,6 +7,7 @@ const useAuthStore = create((set) => ({
   isLoading: true,
   currentLogbook: null,
   logbooks: [],
+  feedMode: 'all', // 'all' | 'single'
 
   // Initialize - try auto-login
   initialize: async () => {
@@ -96,6 +97,8 @@ const useAuthStore = create((set) => ({
   setCurrentLogbook: (logbook) => {
     set({ currentLogbook: logbook });
   },
+
+  setFeedMode: (mode) => set({ feedMode: mode }),
 
   createLogBook: async (title, description) => {
     try {

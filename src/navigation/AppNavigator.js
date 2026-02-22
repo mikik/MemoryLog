@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AuthScreen from '../screens/AuthScreen';
 import FeedScreen from '../screens/FeedScreen';
-import CreateMemoryScreen from '../screens/CreateMemoryScreen';
+
 import LogBooksScreen from '../screens/LogBooksScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -38,14 +38,22 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen
+        name="Feed"
+        component={FeedScreen}
+        listeners={{
+          tabPress: () => {
+            useAuthStore.getState().setFeedMode('all');
+          },
+        }}
+      />
       <Tab.Screen name="LogBooks" component={LogBooksScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
 
-// Stack Navigator (includes modals like CreateMemory)
+// Stack Navigator
 function AppStack() {
   return (
     <Stack.Navigator>
@@ -53,14 +61,6 @@ function AppStack() {
         name="Main"
         component={MainTabs}
         options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CreateMemory"
-        component={CreateMemoryScreen}
-        options={{
-          presentation: 'modal',
-          headerShown: false,
-        }}
       />
     </Stack.Navigator>
   );

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useAuthStore from '../stores/authStore';
+import { getTextAlign } from '../utils/textDirection';
 
 const PB_URL = 'https://hippocampal-louie-unevaporated.ngrok-free.dev';
 
@@ -122,7 +123,7 @@ export default function AuthScreen() {
           <View style={styles.fieldGroup}>
             <Text style={[styles.fieldLabel, fieldErrors.name && styles.fieldLabelError]}>Name</Text>
             <TextInput
-              style={[styles.input, fieldErrors.name && styles.inputError]}
+              style={[styles.input, fieldErrors.name && styles.inputError, { textAlign: getTextAlign(name) }]}
               placeholder="Your Name"
               value={name}
               onChangeText={(v) => { setName(v); setFieldErrors((e) => ({ ...e, name: undefined })); }}
@@ -135,7 +136,7 @@ export default function AuthScreen() {
         <View style={styles.fieldGroup}>
           <Text style={[styles.fieldLabel, fieldErrors.email && styles.fieldLabelError]}>Email</Text>
           <TextInput
-            style={[styles.input, fieldErrors.email && styles.inputError]}
+            style={[styles.input, fieldErrors.email && styles.inputError, { textAlign: getTextAlign(email) }]}
             placeholder="Email"
             value={email}
             onChangeText={(v) => { setEmail(v); setFieldErrors((e) => ({ ...e, email: undefined })); }}
@@ -149,7 +150,7 @@ export default function AuthScreen() {
         <View style={styles.fieldGroup}>
           <Text style={[styles.fieldLabel, fieldErrors.password && styles.fieldLabelError]}>Password</Text>
           <TextInput
-            style={[styles.input, fieldErrors.password && styles.inputError]}
+            style={[styles.input, fieldErrors.password && styles.inputError, { textAlign: getTextAlign(password) }]}
             placeholder="Password"
             value={password}
             onChangeText={(v) => { setPassword(v); setFieldErrors((e) => ({ ...e, password: undefined })); }}
@@ -249,12 +250,12 @@ const styles = StyleSheet.create({
     color: '#ff3b30',
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f8ff',
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#007AFF',
   },
   inputError: {
     borderColor: '#ff3b30',

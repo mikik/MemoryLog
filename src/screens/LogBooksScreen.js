@@ -17,9 +17,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useAuthStore from '../stores/authStore';
+import { getTextAlign } from '../utils/textDirection';
 
 export default function LogBooksScreen({ navigation }) {
-  const { logbooks, currentLogbook, setCurrentLogbook, createLogBook, joinLogBook, deleteLogBook, user } = useAuthStore();
+  const { logbooks, currentLogbook, setCurrentLogbook, setFeedMode, createLogBook, joinLogBook, deleteLogBook, user } = useAuthStore();
   const lastTapRef = useRef(null);
 
   const handleLogbookPress = (item) => {
@@ -27,9 +28,10 @@ export default function LogBooksScreen({ navigation }) {
     const DOUBLE_TAP_DELAY = 300;
 
     if (lastTapRef.current && now - lastTapRef.current < DOUBLE_TAP_DELAY) {
-      // Double tap — select and navigate to Feed
+      // Double tap — select and navigate to Feed (single logbook mode)
       lastTapRef.current = null;
       setCurrentLogbook(item);
+      setFeedMode('single');
       navigation.navigate('Feed');
     } else {
       // First tap — just select
@@ -279,7 +281,7 @@ export default function LogBooksScreen({ navigation }) {
 
               <Text style={styles.fieldLabel}>Title</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { textAlign: getTextAlign(newTitle) }]}
                 placeholder="Title (e.g., The Smith Family)"
                 value={newTitle}
                 onChangeText={setNewTitle}
@@ -288,14 +290,13 @@ export default function LogBooksScreen({ navigation }) {
 
               <Text style={styles.fieldLabel}>Description</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { textAlign: getTextAlign(newDescription) }]}
                 placeholder="Description (optional)"
                 value={newDescription}
                 onChangeText={setNewDescription}
                 maxLength={500}
                 multiline
                 numberOfLines={3}
-                textAlignVertical="top"
               />
 
               <View style={styles.modalActions}>
@@ -335,7 +336,7 @@ export default function LogBooksScreen({ navigation }) {
 
               <Text style={styles.fieldLabel}>Invite Code</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { textAlign: getTextAlign(inviteCode) }]}
                 placeholder="Enter invite code"
                 value={inviteCode}
                 onChangeText={(text) => setInviteCode(text.toUpperCase())}
@@ -501,11 +502,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f8ff',
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#007AFF',
   },
   textArea: {
     minHeight: 80,

@@ -13,7 +13,7 @@ import Constants from 'expo-constants';
 import useAuthStore from '../stores/authStore';
 
 export default function ProfileScreen() {
-  const { user, currentLogbook, logout } = useAuthStore();
+  const { user, currentLogbook, logbooks, logout } = useAuthStore();
 
   const handleLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
@@ -51,28 +51,34 @@ export default function ProfileScreen() {
         <Text style={styles.userEmail}>{user?.email}</Text>
       </View>
 
-      {currentLogbook && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current LogBook</Text>
-          
-          <View style={styles.card}>
-            <View style={styles.cardRow}>
-              <Text style={styles.cardLabel}>Name</Text>
-              <Text style={styles.cardValue}>{currentLogbook.title}</Text>
-            </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>LogBooks</Text>
 
-            {currentLogbook.members && (
-              <View style={styles.cardRow}>
-                <Text style={styles.cardLabel}>Members</Text>
-                <Text style={styles.cardValue}>
-                  {currentLogbook.members.length}
-                </Text>
-              </View>
-            )}
-
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <Text style={styles.cardLabel}>Number of Logbooks</Text>
+            <Text style={styles.cardValue}>{logbooks?.length || 0}</Text>
           </View>
+
+          {currentLogbook && (
+            <>
+              <View style={styles.cardRow}>
+                <Text style={styles.cardLabel}>Current LogBook</Text>
+                <Text style={styles.cardValue}>{currentLogbook.title}</Text>
+              </View>
+
+              {currentLogbook.members && (
+                <View style={styles.cardRow}>
+                  <Text style={styles.cardLabel}>Current LogBook Members</Text>
+                  <Text style={styles.cardValue}>
+                    {currentLogbook.members.length}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
         </View>
-      )}
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Settings</Text>

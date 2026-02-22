@@ -21,8 +21,7 @@ const IMAGE_WIDTH = width - IMAGE_MARGIN * 2;
 const IMAGE_HEIGHT = IMAGE_WIDTH * 0.75;
 const MAX_VISIBLE_COMMENTS = 3;
 
-// Detect if text starts with RTL characters (Hebrew, Arabic)
-const isRTL = (text) => /^[\u0590-\u05FF\u0600-\u06FF\uFE70-\uFEFF]/.test(text?.trim());
+import { isRTL, getTextAlign } from '../utils/textDirection';
 
 export default function MemoryCard({ memory, onRefresh }) {
   const { user } = useAuthStore();
@@ -111,7 +110,7 @@ export default function MemoryCard({ memory, onRefresh }) {
           keyExtractor={(item, index) => `${memory.id}-${index}`}
           renderItem={({ item }) => (
             <Image
-              source={{ uri: pb.getFileUrl(memory, item) }}
+              source={{ uri: pb.getFileUrl(memory, item, { thumb: '720x720' }) }}
               style={styles.image}
               resizeMode="cover"
             />
@@ -192,7 +191,7 @@ export default function MemoryCard({ memory, onRefresh }) {
       {showCommentInput && (
         <View style={styles.commentInputRow}>
           <TextInput
-            style={styles.commentInput}
+            style={[styles.commentInput, { textAlign: getTextAlign(commentText) }]}
             placeholder="Add a comment..."
             value={commentText}
             onChangeText={setCommentText}
@@ -415,17 +414,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
   },
   commentInput: {
     flex: 1,
     fontSize: 14,
     color: '#333',
     paddingVertical: 6,
-    paddingHorizontal: 8,
-    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 12,
+    backgroundColor: '#f0f8ff',
     borderRadius: 16,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#007AFF',
   },
 });
