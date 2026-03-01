@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import useAuthStore from '../stores/authStore';
 import { getTextAlign } from '../utils/textDirection';
 
-const PB_URL = 'https://hippocampal-louie-unevaporated.ngrok-free.dev';
+const PB_URL = 'https://memorylog.eastus.cloudapp.azure.com';
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -33,7 +33,6 @@ export default function AuthScreen() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
       const response = await fetch(`${PB_URL}/api/health`, {
-        headers: { 'ngrok-skip-browser-warning': 'true' },
         signal: controller.signal,
       });
       clearTimeout(timeout);

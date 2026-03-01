@@ -1,0 +1,90 @@
+=============================================
+  Family Memory Log - Local Server Setup
+=============================================
+
+You need 3 services running to serve the app:
+
+  1. PocketBase (backend database)
+  2. ngrok (exposes PocketBase to the internet)
+  3. Expo (serves the app to devices)
+
+Open 3 separate terminal windows and run each one.
+
+
+---------------------------------------------
+  Terminal 1: PocketBase
+---------------------------------------------
+
+cd /Users/mkenneth/code/pocketbase-server
+./pocketbase serve --http 0.0.0.0:8090 --dir ./pb_data
+
+  - Admin dashboard: http://localhost:8090/_/
+  - API health check: http://localhost:8090/api/health
+
+
+---------------------------------------------
+  Terminal 2: ngrok (tunnel for PocketBase)
+---------------------------------------------
+
+ngrok http 8090 --url=hippocampal-louie-unevaporated.ngrok-free.dev
+
+  - This exposes PocketBase at:
+    https://hippocampal-louie-unevaporated.ngrok-free.dev
+  - The app is already configured to use this URL in:
+    src/services/pocketbase.js
+    src/screens/AuthScreen.js
+
+
+---------------------------------------------
+  Terminal 3: Expo (app server)
+---------------------------------------------
+
+cd /Users/mkenneth/code/MemoryLog
+npx expo start --tunnel
+
+  - This starts Metro bundler + creates an Expo tunnel
+  - The tunnel URL will appear in the terminal output
+    (e.g., exp://xxxxx-miki2026-8081.exp.direct)
+  - iOS users connect via Expo Go using that URL
+  - Local development: press 'i' for iOS simulator, 'a' for Android emulator
+
+
+---------------------------------------------
+  Startup Order
+---------------------------------------------
+
+  1. Start PocketBase first (the backend must be up)
+  2. Start ngrok second (so the app can reach PocketBase)
+  3. Start Expo last (it connects to PocketBase on load)
+
+
+---------------------------------------------
+  Verification
+---------------------------------------------
+
+After all 3 are running, verify:
+
+  curl https://hippocampal-louie-unevaporated.ngrok-free.dev/api/health
+
+  Expected response: {"code":200,"message":"API is healthy."}
+
+
+---------------------------------------------
+  Stopping Services
+---------------------------------------------
+
+Press Ctrl+C in each terminal window to stop that service.
+
+
+---------------------------------------------
+  Notes
+---------------------------------------------
+
+- The ngrok URL is a fixed custom domain. It won't change between restarts.
+- The Expo tunnel URL changes each time you restart Expo.
+  Share the new URL with iOS testers after each restart.
+- PocketBase data is stored in: /Users/mkenneth/code/pocketbase-server/pb_data/
+- If ngrok shows "remote gone away", just restart it.
+- If Expo tunnel fails, kill any stale ngrok processes and retry:
+    killall ngrok
+    npx expo start --tunnel

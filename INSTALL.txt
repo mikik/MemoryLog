@@ -1,0 +1,51 @@
+=============================================
+  Family Memory Log - Installation Guide
+=============================================
+
+
+---------------------------------------------
+  iOS (via Expo Go)
+---------------------------------------------
+
+1. Install "Expo Go" from the App Store:
+   https://apps.apple.com/app/expo-go/id982107779
+
+2. Open this link on your iPhone in Safari:
+   exp://knlpqgw-miki2026-8081.exp.direct
+
+3. When prompted, tap "Open in Expo Go"
+
+4. The app will load and you'll see the login screen.
+   - If you already have an account, log in.
+   - If not, tap "Don't have an account? Sign Up" to create one.
+
+Note: The Expo tunnel URL may change if the server restarts.
+      Ask the admin for the latest URL if it stops working.
+
+
+---------------------------------------------
+  Android (APK Download)
+---------------------------------------------
+
+1. On your Android phone, open this link in Chrome:
+   https://expo.dev/artifacts/eas/dYiGBJaWoV3s44Vhp1bMrz.apk
+
+2. When the download finishes, tap the notification to install.
+   - If prompted, allow "Install from unknown sources" in Settings.
+
+3. Open "Family Memory Log" from your app drawer.
+
+4. The app will show the login screen.
+   - If you already have an account, log in.
+   - If not, tap "Don't have an account? Sign Up" to create one.
+
+
+---------------------------------------------
+  Troubleshooting
+---------------------------------------------
+
+- If the app shows "Server offline", tap the status bar to retry.
+- Make sure you have an internet connection.
+- If the iOS Expo link doesn't work, the server may have restarted.
+  Ask the admin for the updated tunnel URL.
+- The Android APK is a standalone build and does not depend on Expo.

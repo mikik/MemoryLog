@@ -1,0 +1,133 @@
+=============================================
+  Family Memory Log - Azure Deployment
+=============================================
+
+PocketBase is deployed on an Azure VM with automatic HTTPS via Caddy.
+
+
+---------------------------------------------
+  Server Details
+---------------------------------------------
+
+  URL:             https://memorylog.eastus.cloudapp.azure.com
+  Admin Dashboard: https://memorylog.eastus.cloudapp.azure.com/_/
+  Health Check:    https://memorylog.eastus.cloudapp.azure.com/api/health
+
+  VM Name:         memorylog-vm
+  VM Size:         Standard_B1s (1 vCPU, 1 GB RAM)
+  OS:              Ubuntu 24.04 LTS
+  IP:              52.240.54.152
+  DNS:             memorylog.eastus.cloudapp.azure.com
+  Resource Group:  memorylog-rg
+  Region:          eastus
+  Est. Cost:       ~$13/month
+
+
+---------------------------------------------
+  SSH Access
+---------------------------------------------
+
+ssh azureuser@memorylog.eastus.cloudapp.azure.com
+
+
+---------------------------------------------
+  Services (systemd)
+---------------------------------------------
+
+  PocketBase:  /etc/systemd/system/pocketbase.service
+  Caddy:       /usr/lib/systemd/system/caddy.service
+
+  Both are enabled on boot and auto-restart on crash.
+
+  # Check status
+  sudo systemctl status pocketbase
+  sudo systemctl status caddy
+
+  # Restart
+  sudo systemctl restart pocketbase
+  sudo systemctl restart caddy
+
+  # View logs
+  sudo journalctl -u pocketbase -f
+  sudo journalctl -u caddy -f
+
+
+---------------------------------------------
+  File Locations (on VM)
+---------------------------------------------
+
+  PocketBase binary:    /opt/pocketbase/pocketbase (v0.22.0)
+  Database:             /opt/pocketbase/pb_data/data.db
+  Logs DB:              /opt/pocketbase/pb_data/logs.db
+  Uploaded files:       /opt/pocketbase/pb_data/storage/
+  Migrations:           /opt/pocketbase/pb_migrations/
+  Caddy config:         /etc/caddy/Caddyfile
+  TLS certs:            Managed automatically by Caddy (Let's Encrypt)
+
+
+---------------------------------------------
+  Automated Backup (Azure Blob Storage)
+---------------------------------------------
+
+  Backups run daily at 3:00 AM UTC via cron.
+  Archive includes: SQLite DB (consistent .backup copy) + all uploaded photos.
+  Retention: 30 days (auto-deleted after).
+
+  Storage Account:  memorylogbackups
+  Container:        pb-backups
+  SAS Token Expiry: 2028-03-01
+  Est. Cost:        ~$0.02/GB/month
+
+  Files on VM:
+    Backup script:  /opt/pocketbase/backup.sh
+    Cron job:       /etc/cron.d/pocketbase-backup
+    Log file:       /var/log/pocketbase-backup.log
+
+  # Check backup log
+  sudo tail -20 /var/log/pocketbase-backup.log
+
+  # Check syslog for backup entries
+  sudo journalctl -t pocketbase-backup --since today
+
+  # Run backup manually
+  sudo /opt/pocketbase/backup.sh
+
+  # List backups in Azure
+  az storage blob list --container-name pb-backups \
+    --account-name memorylogbackups --auth-mode key \
+    --query "[].{name:name, size:properties.contentLength}" --output table
+
+  # Download a specific backup
+  az storage blob download --container-name pb-backups \
+    --account-name memorylogbackups --auth-mode key \
+    --name "pb_backup_2026-03-01_160905.tar.gz" \
+    --file ./pb_backup.tar.gz
+
+  # Restore from backup
+  # 1. Stop PocketBase
+  sudo systemctl stop pocketbase
+  # 2. Extract backup
+  tar -xzf pb_backup.tar.gz
+  # 3. Replace data
+  sudo cp pb_backup_*/data.db /opt/pocketbase/pb_data/data.db
+  sudo cp -r pb_backup_*/storage/ /opt/pocketbase/pb_data/storage/
+  # 4. Restart PocketBase
+  sudo systemctl start pocketbase
+
+  # Change retention period
+  # Edit RETENTION_DAYS in /opt/pocketbase/backup.sh
+
+
+---------------------------------------------
+  Manual Backup (alternative)
+---------------------------------------------
+
+  # Download pb_data to local machine
+  scp -r azureuser@memorylog.eastus.cloudapp.azure.com:/opt/pocketbase/pb_data ./pb_data_backup
+
+
+---------------------------------------------
+  Cleanup (delete everything)
+---------------------------------------------
+
+  az group delete --name memorylog-rg --yes --no-wait
